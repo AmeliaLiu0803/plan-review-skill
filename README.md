@@ -5,7 +5,7 @@
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-8B5CF6)](https://claude.ai/code)
 
-English | [中文文档](README_CN.md)
+English | [Chinese version](README_CN.md)
 
 ## The Problem
 
@@ -83,7 +83,7 @@ Your files live in `~/.claude/`:
 
 Every time `plan-review:update` runs, it compares the current plan against the last saved baseline. If changes are detected:
 
-- A new row is added to the "规划变更记录" (Plan Change Log) table
+- A new row is added to the "Plan Change Log" table
 - A collapsible diff block is appended
 - A new baseline snapshot is saved (5 most recent per plan are kept)
 
@@ -93,13 +93,13 @@ Each review document contains:
 
 | Section | Content |
 |---------|---------|
-| **基本信息** | Planned vs. actual start/end dates, total days, current status |
-| **Phase 回顾** | Per-phase comparison: planned time, deliverables, quality gates, actual results, deviation reasons |
-| **经验教训** | Lessons learned per phase |
-| **待确认问题** | Open questions extracted from the plan's `[待核实]` markers |
-| **整体总结** | What was done vs. plan, mistakes/lessons, next improvements |
-| **规划变更记录** | Timestamped log of all plan changes with diffs |
-| **更新日志** | Log of all review updates with trigger source |
+| **Basic Info** | Planned vs. actual start/end dates, total days, current status |
+| **Phase Review** | Per-phase comparison: planned time, deliverables, quality gates, actual results, deviation reasons |
+| **Lessons Learned** | Lessons learned per phase |
+| **Open Questions** | Open questions extracted from plan file markers (e.g. `[pending verification]` tags) |
+| **Overall Summary** | What was done vs. plan, mistakes/lessons, next improvements |
+| **Plan Change Log** | Timestamped log of all plan changes with diffs |
+| **Update Log** | Log of all review updates with trigger source |
 
 ### Auto-Trigger Rules
 
@@ -117,33 +117,33 @@ Here's what a filled-out review document looks like:
 ```markdown
 # Implementation Plan: MARL RCA MVP — Review
 
-## 基本信息
-| 项目 | 计划 | 实际 |
-|------|------|------|
-| 开始日期 | 2026-06-07 | 2026-06-07 |
-| 结束日期 | 2026-08-01 | 进行中 |
-| 总天数 | 52 天 | 进行中 |
-| 当前状态 | — | 进行中 |
+## Basic Info
+| Item | Planned | Actual |
+|------|---------|--------|
+| Start Date | 2026-06-07 | 2026-06-07 |
+| End Date | 2026-08-01 | In Progress |
+| Total Days | 52 days | In Progress |
+| Status | — | In Progress |
 
-## Phase 回顾
+## Phase Review
 
-### Phase 0: 环境搭建 + Repo 初始化（3 天）
-| 维度 | 预期 | 实际 | 偏差原因 |
-|------|------|------|----------|
-| 时间 | 3 天 | 4 天 | +1 天：conda 环境依赖冲突 |
-| Deliverable | 三个 repo + conda 环境 | ✅ 完成 | |
+### Phase 0: Environment Setup + Repo Init (3 days)
+| Dimension | Expected | Actual | Deviation Reason |
+|-----------|----------|--------|-------------------|
+| Time | 3 days | 4 days | +1 day: conda environment dependency conflict |
+| Deliverable | Three repos + conda env | ✅ Complete | |
 
-## 规划变更记录
-| 时间 | 变更摘要 | diff |
-|------|---------|------|
-| 2026-06-10 14:00 | Phase 2 时间从 7天→10 天 | 见下方 diff |
+## Plan Change Log
+| Time | Change Summary | diff |
+|------|---------------|------|
+| 2026-06-10 14:00 | Phase 2 time from 7d → 10d | See diff below |
 
 <details>
-<summary>diff: Phase 2 时间调整</summary>
+<summary>diff: Phase 2 time adjustment</summary>
 
 ```diff
-- ### Phase 2: 3 个 Toy 实验（7 天）
-+ ### Phase 2: 3 个 Toy 实验（10 天）
+- ### Phase 2: 3 Toy Experiments (7 days)
++ ### Phase 2: 3 Toy Experiments (10 days)
 ```
 </details>
 ```

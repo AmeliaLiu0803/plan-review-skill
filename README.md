@@ -5,7 +5,7 @@
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-8B5CF6)](https://claude.ai/code)
 
-English | [Chinese version](README_CN.md)
+English | [中文](README_CN.md)
 
 ## The Problem
 

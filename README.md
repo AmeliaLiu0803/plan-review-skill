@@ -5,6 +5,8 @@
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-8B5CF6)](https://claude.ai/code)
 
+English | [中文文档](README_CN.md)
+
 ## The Problem
 
 You write a plan. Then it changes — 10 times over the course of a project.

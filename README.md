@@ -11,10 +11,11 @@ English | [中文](README_CN.md)
 
 You write a plan. Then it changes — 10 times over the course of a project.
 
-- **What changed?** You forgot.
-- **What was the original plan?** You can't remember.
-- **Planned vs. actual?** You estimate from memory.
-- **Lessons learned?** Somewhere in a file you can't find.
+The three most painful patterns in long-horizon work:
+
+1. **Context drift** — The AI session grows, compaction fires, and every plan change you made is gone. "Last week the AI knew about this approach… now it forgot."
+2. **No way to verify AI execution against the plan** — The AI says "done." But what did it actually do? Does it match the plan? You can't audit every line of code.
+3. **Wishes into the void** — You say "remember to do X" mid-session. The AI says "sure." Then the session ends and nobody follows up. Nobody recorded it. Nobody confirmed it happened.
 
 For anyone managing long-horizon tasks — developers, researchers, project managers, students — plan iterations are normal. But without systematic tracking, you lose all the context of *why* things changed and *what* you learned.
 
@@ -23,10 +24,10 @@ For anyone managing long-horizon tasks — developers, researchers, project mana
 **Plan Review** is a pair of Claude Code skills that automatically:
 
 1. **Generates review documents** from your plan files — pre-filled with expected phases, timelines, deliverables, and open questions.
-2. **Tracks plan changes with diffs** — every time your plan is modified, the skill records a git-style diff, timestamp, and summary.
-3. **Compares planned vs. actual** — structured tables for each phase: planned time, actual time, deliverables, quality gates, and deviation reasons.
+2. **Tracks plan changes with diffs** — every time your plan is modified, the skill records a git-style diff, timestamp, and summary. **Session compacted? Change history persists.**
+3. **Compares planned vs. actual** — structured tables for each phase: planned time, actual time, deliverables, quality gates, and deviation reasons. **AI says "done" — this shows whether what was done matches the plan.**
 4. **Records lessons learned** — structured sections for each phase and overall project, so mistakes and insights are never lost.
-5. **Auto-triggers** — updates at session end, phase completion, or plan change detection.
+5. **Auto-triggers** — updates at session end, phase completion, or plan change detection. **No more wishes into the void: progress is captured and confirmed automatically.**
 
 ## Quick Start
 

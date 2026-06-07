@@ -22,12 +22,13 @@ REVIEWS_DIR = Path(os.path.expanduser("~/.claude/reviews"))
 def plan_to_review_name(plan_filename: str) -> str:
     """Convert plan filename to review filename."""
     name = plan_filename
-    if "plan" in name.lower():
-        name = re.sub(r"plan", "review", name, flags=re.IGNORECASE, count=1)
-    else:
-        stem, ext = os.path.splitext(name)
-        name = f"{stem}-review{ext}"
-    return name
+    stem, ext = os.path.splitext(name)
+    if stem.lower().endswith("-plan"):
+        return f"{stem[:-5]}-review{ext}"
+    if "-plan-" in stem.lower() and not stem.lower().endswith("-review"):
+        idx = stem.lower().rfind("-plan-")
+        return f"{stem[:idx]}-review-{stem[idx + 6:]}{ext}"
+    return f"{stem}-review{ext}"
 
 
 def create_baseline(plan_path: Path) -> str:

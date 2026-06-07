@@ -68,18 +68,18 @@ def find_review_file(name: str) -> Path | None:
 
 def review_to_plan_name(review_name: str) -> str:
     """Convert review filename back to plan filename."""
-    # Try reversing the init naming logic
-    if "-review" in review_name:
-        candidate = review_name.replace("-review", "-plan")
+    stem, ext = os.path.splitext(review_name)
+    candidates = []
+    if "-review-" in stem.lower():
+        idx = stem.lower().rfind("-review-")
+        candidates.append(f"{stem[:idx]}-plan-{stem[idx + 8:]}{ext}")
+    if stem.lower().endswith("-review"):
+        candidates.append(f"{stem[:-7]}-plan{ext}")
+        candidates.append(f"{stem[:-7]}{ext}")
+
+    for candidate in candidates:
         if (PLANS_DIR / candidate).exists():
             return candidate
-        # Maybe original didn't have "plan" — try without suffix
-        candidate2 = review_name.replace("-review", "")
-        if (PLANS_DIR / candidate2).exists():
-            return candidate2
-    # If name already is the plan name
-    if (PLANS_DIR / review_name).exists():
-        return review_name
     return None
 
 

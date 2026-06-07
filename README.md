@@ -56,12 +56,26 @@ That's it. Two new commands are now available in Claude Code.
 /plan-review:update my-review.md           # update a specific review
 ```
 
+**Manage the lesson-memo knowledge base**:
+
+```
+/lesson-memo:extract                       # extract lessons from historical reviews and memories
+/lesson-memo:recall "task description"     # recall relevant lessons for a task
+/lesson-memo:list                          # list all stored lessons
+/lesson-memo:status                        # show knowledge base statistics
+```
+
 ### File Layout
 
 Your files live in `~/.claude/`:
 
 ```
 ~/.claude/
+├── lesson-memo/
+│   ├── lessons/                       # one YAML file per lesson
+│   ├── registry.json                  # lesson index
+│   ├── config.json                    # recall thresholds
+│   └── .last_session_state.json       # session extraction state
 ├── plans/
 │   ├── .baselines/                    # auto-managed plan snapshots (5 most recent per plan)
 │   │   ├── my-plan.md.20260607-1000.md
@@ -73,9 +87,15 @@ Your files live in `~/.claude/`:
     ├── plan-review-init/
     │   ├── SKILL.md
     │   └── scripts/init_review.py
-    └── plan-review-update/
+    ├── plan-review-update/
+    │   ├── SKILL.md
+    │   └── scripts/update_review.py
+    └── plan-review-companion/
         ├── SKILL.md
-        └── scripts/update_review.py
+        └── scripts/
+            ├── extract.py
+            ├── recall.py
+            └── session_extract.py
 ```
 
 ## Features
@@ -87,6 +107,21 @@ Every time `plan-review:update` runs, it compares the current plan against the l
 - A new row is added to the "Plan Change Log" table
 - A collapsible diff block is appended
 - A new baseline snapshot is saved (5 most recent per plan are kept)
+
+### Lesson-Memo Companion
+
+`plan-review-companion` adds a lesson-memo system: a lightweight knowledge base that extracts mistakes, lessons, and next-step improvements from historical reviews and memory files.
+
+It supports four commands:
+
+| Command | Purpose |
+|---------|---------|
+| `/lesson-memo:extract` | Extract lessons from historical reviews and feedback memories |
+| `/lesson-memo:recall "task description"` | Retrieve the most relevant lessons for the current task |
+| `/lesson-memo:list` | List every stored lesson with confidence and domain |
+| `/lesson-memo:status` | Show lesson count and domain statistics |
+
+The companion also supports automatic lesson injection. When `/plan-review:init` creates a review, the recall script can search the lesson-memo knowledge base and append a "Historical Lessons Reference" section to the review. At session end, `session_extract.py` can capture fresh lessons through the Stop hook so the knowledge base keeps improving across projects.
 
 ### Structured Review Document
 

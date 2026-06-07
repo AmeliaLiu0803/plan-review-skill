@@ -56,12 +56,26 @@ cp -r plan-review-skill/skills/* ~/.claude/skills/
 /plan-review:update my-review.md           # 更新特定 review
 ```
 
+**管理错题本知识库：**
+
+```
+/lesson-memo:extract                       # 从历史 review 和 memory 中提取教训
+/lesson-memo:recall "任务描述"             # 为当前任务召回相关教训
+/lesson-memo:list                          # 列出所有已保存教训
+/lesson-memo:status                        # 查看知识库统计
+```
+
 ### 文件布局
 
 你的文件存放在 `~/.claude/` 下：
 
 ```
 ~/.claude/
+├── lesson-memo/
+│   ├── lessons/                       # 每条教训一个 YAML 文件
+│   ├── registry.json                  # 教训索引
+│   ├── config.json                    # 召回阈值配置
+│   └── .last_session_state.json       # session 提取状态
 ├── plans/
 │   ├── .baselines/                    # 自动管理的计划快照（每个计划保留最近 5 份）
 │   │   ├── my-plan.md.20260607-1000.md
@@ -73,9 +87,15 @@ cp -r plan-review-skill/skills/* ~/.claude/skills/
     ├── plan-review-init/
     │   ├── SKILL.md
     │   └── scripts/init_review.py
-    └── plan-review-update/
+    ├── plan-review-update/
+    │   ├── SKILL.md
+    │   └── scripts/update_review.py
+    └── plan-review-companion/
         ├── SKILL.md
-        └── scripts/update_review.py
+        └── scripts/
+            ├── extract.py
+            ├── recall.py
+            └── session_extract.py
 ```
 
 ## 功能
@@ -87,6 +107,21 @@ cp -r plan-review-skill/skills/* ~/.claude/skills/
 - 在「规划变更记录」表中新增一行
 - 追加一个可折叠的 diff 区块
 - 保存新的基线快照（每个计划保留最近 5 份）
+
+### 错题本 Companion
+
+`plan-review-companion` 新增错题本系统：一个轻量知识库，会从历史 review 和 memory 文件中提取错误、教训和下一步改进。
+
+它支持四个命令：
+
+| 命令 | 用途 |
+|------|------|
+| `/lesson-memo:extract` | 从历史 review 和反馈 memory 中提取教训 |
+| `/lesson-memo:recall "任务描述"` | 为当前任务召回最相关的教训 |
+| `/lesson-memo:list` | 列出所有已保存教训及其 confidence 和 domain |
+| `/lesson-memo:status` | 查看教训数量和 domain 统计 |
+
+Companion 也支持自动注入。`/plan-review:init` 创建 review 后，recall 脚本可以检索错题本知识库，并把结果追加为「历史教训参考」章节。Session 结束时，`session_extract.py` 可以通过 Stop hook 捕获新的教训，让知识库在项目之间持续积累。
 
 ### 结构化 Review 文档
 

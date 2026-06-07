@@ -16,7 +16,7 @@ You write a plan. Then it changes — 10 times over the course of a project.
 - **Planned vs. actual?** You estimate from memory.
 - **Lessons learned?** Somewhere in a file you can't find.
 
-Especially for researchers, project managers, and students — plan iterations are normal. But without systematic tracking, you lose all the context of *why* things changed and *what* you learned.
+For anyone managing long-horizon tasks — developers, researchers, project managers, students — plan iterations are normal. But without systematic tracking, you lose all the context of *why* things changed and *what* you learned.
 
 ## The Solution
 
@@ -150,11 +150,14 @@ Here's what a filled-out review document looks like:
 
 ## Who Is This For?
 
-- **Researchers** running experiments with evolving plans
-- **Project managers** tracking planned vs. actual progress
-- **Students** managing thesis/experiment timelines
-- **Anyone using Claude Code** who wants systematic plan-vs-actual tracking
-- **Teams** who want structured lessons-learned documentation
+Anyone managing **long-horizon tasks** — work that unfolds in phases and where plans evolve over time:
+
+- **Developers** tracking feature iterations, spec changes, and timeline deviations
+- **Researchers** running experiments with evolving protocols and reproducibility logs
+- **Project managers** comparing planned vs. actual milestones across sprints
+- **Students** managing thesis, dissertation, or experiment timelines
+- **Teams** who want structured lessons-learned documentation across plan iterations
+- **Anyone using Claude Code** who wants systematic plan-vs-actual tracking that persists across sessions
 
 ## License
 

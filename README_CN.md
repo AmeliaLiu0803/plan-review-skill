@@ -1,6 +1,6 @@
 # Plan Review 技能
 
-> 自动追踪计划变更、对比计划与实际执行情况、记录经验教训 —— 专为 Claude Code 设计。
+> 为 Claude Code 设计的三技能闭环系统：追踪计划变更、审查执行情况、复用历史教训。
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-8B5CF6)](https://claude.ai/code)
@@ -21,13 +21,22 @@
 
 ## 解决方案
 
-**Plan Review** 是一对 Claude Code 技能，能够自动：
+**Plan Review** 是一个完整的三技能闭环：
 
-1. **从计划文件生成 review 文档** —— 预填预期阶段、时间线、交付物和待确认问题。
-2. **用 diff 追踪计划变更** —— 每次修改计划，技能都会记录 git 风格的 diff、时间戳和摘要。**Session 被压缩了？变更历史还在。**
-3. **对比计划与实际** —— 每个阶段的结构化表格：计划时间、实际时间、交付物、质量门控、偏差原因。**AI 说"做完了"——实际做的和计划一不一样？一张表看清。**
-4. **记录经验教训** —— 每个阶段和整个项目的结构化章节，错误和洞察永远不会丢失。
-5. **自动触发** —— 会话结束、阶段完成或检测到计划变更时自动更新。**许愿不落空：session 里说的"记得做 X"，有人记、有人追、有人确认。**
+1. **初始化**：使用 `/plan-review:init` 从计划生成结构化 review 文档，预填阶段、时间线、交付物、质量门控和待确认问题。
+2. **更新**：使用 `/plan-review:update` 对比计划与实际执行，记录进展，捕获计划 diff，并跨 session 保持 review 最新。
+3. **提取与召回**：使用 `/plan-review:extract` 和 `/plan-review:recall` 把 review 教训沉淀到错题本知识库，并在下一次规划或执行前召回相关教训。
+
+闭环如下：
+
+```text
+plan -> /plan-review:init -> review 骨架
+review + 变更后的 plan -> /plan-review:update -> 执行审查 + diff + 新教训
+reviews + memories -> /plan-review:extract -> 错题本知识库
+新任务 -> /plan-review:recall -> 相关历史教训注入下一轮规划
+```
+
+三个技能合在一起，让计划历史可追踪、执行过程可审查、历史教训可复用。
 
 ## 快速开始
 
@@ -38,38 +47,62 @@ git clone https://github.com/AmeliaLiu0803/plan-review-skill.git
 cp -r plan-review-skill/skills/* ~/.claude/skills/
 ```
 
-就这样。两个新命令即可使用。
-
-### 使用
+### 命令
 
 **从现有计划创建 review 文档：**
 
-```
+```text
 /plan-review:init                          # 为所有没有 review 的计划创建 review
 /plan-review:init my-plan.md               # 为特定计划创建 review
 ```
 
 **用最新进展更新 review：**
 
-```
+```text
 /plan-review:update                        # 更新所有进行中的 review
 /plan-review:update my-review.md           # 更新特定 review
 ```
 
 **管理错题本知识库：**
 
-```
-/lesson-memo:extract                       # 从历史 review 和 memory 中提取教训
-/lesson-memo:recall "任务描述"             # 为当前任务召回相关教训
-/lesson-memo:list                          # 列出所有已保存教训
-/lesson-memo:status                        # 查看知识库统计
+```text
+/plan-review:extract                       # 从历史 review 和 memory 中提取教训
+/plan-review:recall "任务描述"             # 为当前任务召回相关教训
+/plan-review:list                          # 列出所有已保存教训
+/plan-review:status                        # 查看知识库统计
 ```
 
-### 文件布局
+## 架构
+
+```text
+┌────────────────────┐
+│ plan-review-init   │
+│ /plan-review:init  │
+│ plan -> review     │
+└─────────┬──────────┘
+          │ 创建 review 骨架
+          v
+┌────────────────────┐
+│ plan-review-update │
+│ /plan-review:update│
+│ review + diffs     │
+└─────────┬──────────┘
+          │ 记录教训
+          v
+┌────────────────────────┐
+│ plan-review-companion  │
+│ extract / recall / list│
+│ 错题本知识库           │
+└─────────┬──────────────┘
+          │ 为下一次任务召回教训
+          └──────────────> /plan-review:init 和后续执行
+```
+
+## 文件布局
 
 你的文件存放在 `~/.claude/` 下：
 
-```
+```text
 ~/.claude/
 ├── lesson-memo/
 │   ├── lessons/                       # 每条教训一个 YAML 文件
@@ -77,7 +110,7 @@ cp -r plan-review-skill/skills/* ~/.claude/skills/
 │   ├── config.json                    # 召回阈值配置
 │   └── .last_session_state.json       # session 提取状态
 ├── plans/
-│   ├── .baselines/                    # 自动管理的计划快照（每个计划保留最近 5 份）
+│   ├── .baselines/                    # 自动管理的计划快照，每个计划保留最近 5 份
 │   │   ├── my-plan.md.20260607-1000.md
 │   │   └── my-plan.md.20260607-1500.md
 │   └── my-plan.md                     # 你当前的计划
@@ -100,29 +133,6 @@ cp -r plan-review-skill/skills/* ~/.claude/skills/
 
 ## 功能
 
-### 自动计划 Diff 追踪
-
-每次运行 `plan-review:update` 时，它会将当前计划与上次保存的基线进行比较。如果检测到变更：
-
-- 在「规划变更记录」表中新增一行
-- 追加一个可折叠的 diff 区块
-- 保存新的基线快照（每个计划保留最近 5 份）
-
-### 错题本 Companion
-
-`plan-review-companion` 新增错题本系统：一个轻量知识库，会从历史 review 和 memory 文件中提取错误、教训和下一步改进。
-
-它支持四个命令：
-
-| 命令 | 用途 |
-|------|------|
-| `/lesson-memo:extract` | 从历史 review 和反馈 memory 中提取教训 |
-| `/lesson-memo:recall "任务描述"` | 为当前任务召回最相关的教训 |
-| `/lesson-memo:list` | 列出所有已保存教训及其 confidence 和 domain |
-| `/lesson-memo:status` | 查看教训数量和 domain 统计 |
-
-Companion 也支持自动注入。`/plan-review:init` 创建 review 后，recall 脚本可以检索错题本知识库，并把结果追加为「历史教训参考」章节。Session 结束时，`session_extract.py` 可以通过 Stop hook 捕获新的教训，让知识库在项目之间持续积累。
-
 ### 结构化 Review 文档
 
 每个 review 文档包含：
@@ -135,23 +145,43 @@ Companion 也支持自动注入。`/plan-review:init` 创建 review 后，recall
 | **待确认问题** | 从计划的 `[待核实]` 标记中提取的待确认问题 |
 | **整体总结** | 做了什么 vs 计划、错误/教训、下一步改进 |
 | **规划变更记录** | 所有计划变更的时间戳记录，附带 diff |
-| **更新日志** | 所有 review 更新的记录，包含触发来源 |
+| **更新日志** | 所有 review 更新记录，包含触发来源 |
+
+### 自动计划 Diff 追踪
+
+每次运行 `/plan-review:update` 时，它会将当前计划与上次保存的基线进行比较。如果检测到变更：
+
+- 在「规划变更记录」表中新增一行
+- 追加一个可折叠的 diff 区块
+- 保存新的基线快照，每个计划保留最近 5 份
+
+### 错题本知识库
+
+`plan-review-companion` 会从历史 review 和反馈 memory 中提取错误、教训和下一步改进。
+
+| 命令 | 用途 |
+|------|------|
+| `/plan-review:extract` | 从历史 review 和反馈 memory 中提取教训 |
+| `/plan-review:recall "任务描述"` | 为当前任务召回最相关的教训 |
+| `/plan-review:list` | 列出所有已保存教训及其 confidence 和 domain |
+| `/plan-review:status` | 查看教训数量和 domain 统计 |
+
+当 `/plan-review:init` 创建 review 后，recall 可以把「历史教训参考」章节追加到 review 中。Session 结束时，`session_extract.py` 可以通过 Stop hook 捕获新的教训，让知识库在项目之间持续积累。
 
 ### 自动触发规则
 
 | 触发条件 | 模式 | 更新内容 |
 |----------|------|----------|
-| 会话结束 | 轻量 | 时间、状态、计划 diff 检查 |
-| 阶段完成 | 完整 | 偏差分析、经验教训、计划 diff |
-| 手动命令 | 完整 | 所有内容 |
+| Session 结束 | 轻量 | 时间、状态、计划 diff 检查、新教训提取 |
+| Phase 完成 | 完整 | 偏差分析、经验教训、计划 diff |
+| 手动命令 | 完整 | 当前命令要求的全部内容 |
 | 计划文件变更 | 轻量 | 仅记录 diff |
+| Review 创建 | 召回 | 把历史教训注入新 review |
 
 ## 示例
 
-以下是填写好的 review 文档示例：
-
-```markdown
-# Implementation Plan: MARL RCA MVP — Review
+````markdown
+# Implementation Plan: MARL RCA MVP - Review
 
 ## 基本信息
 | 项目 | 计划 | 实际 |
@@ -159,7 +189,7 @@ Companion 也支持自动注入。`/plan-review:init` 创建 review 后，recall
 | 开始日期 | 2026-06-07 | 2026-06-07 |
 | 结束日期 | 2026-08-01 | 进行中 |
 | 总天数 | 52 天 | 进行中 |
-| 当前状态 | — | 进行中 |
+| 当前状态 | - | 进行中 |
 
 ## Phase 回顾
 
@@ -167,12 +197,17 @@ Companion 也支持自动注入。`/plan-review:init` 创建 review 后，recall
 | 维度 | 预期 | 实际 | 偏差原因 |
 |------|------|------|----------|
 | 时间 | 3 天 | 4 天 | +1 天：conda 环境依赖冲突 |
-| Deliverable | 三个 repo + conda 环境 | ✅ 完成 | |
+| Deliverable | 三个 repo + conda 环境 | 完成 | |
+
+## 历史教训参考
+| 教训 | 行动 |
+|------|------|
+| 写脚本前先确认平台相关路径处理。 | 在当前 shell 上验证路径后再运行自动化。 |
 
 ## 规划变更记录
-| 时间 | 变更摘要 | diff |
-|------|---------|------|
-| 2026-06-10 14:00 | Phase 2 时间从 7天→10 天 | 见下方 diff |
+| 时间 | 变更摘要 | Diff |
+|------|----------|------|
+| 2026-06-10 14:00 | Phase 2 时间从 7 天调整为 10 天 | 见下方 diff |
 
 <details>
 <summary>diff: Phase 2 时间调整</summary>
@@ -182,18 +217,18 @@ Companion 也支持自动注入。`/plan-review:init` 创建 review 后，recall
 + ### Phase 2: 3 个 Toy 实验（10 天）
 ```
 </details>
-```
+````
 
 ## 适合谁
 
-任何管理 **长程任务** 的人——分阶段执行、计划会反复调整的工作都适用：
+任何管理 **长程任务** 的人：分阶段执行、计划会反复调整的工作都适用。
 
-- **开发者** —— 追踪功能迭代、需求变更、进度偏差
-- **研究人员** —— 实验方案演进、可追溯记录
-- **项目经理** —— 计划 vs 实际里程碑对比
-- **学生** —— 管理论文、毕业设计、实验时间线
-- **团队** —— 跨版本的结构化经验教训文档
-- **任何使用 Claude Code 的人** —— 想要系统化的计划 vs 实际追踪
+- **开发者**：追踪功能迭代、需求变更、进度偏差
+- **研究人员**：管理实验方案演进和可追溯记录
+- **项目经理**：对比计划 vs 实际里程碑
+- **学生**：管理论文、毕业设计、实验时间线
+- **团队**：沉淀跨版本的结构化经验教训
+- **任何使用 Claude Code 的人**：想要跨 session 持久保存计划与执行审查记录
 
 ## License
 

@@ -123,9 +123,13 @@ cp -r plan-review-skill/skills/* ~/.claude/skills/
     ├── plan-review-update/
     │   ├── SKILL.md
     │   └── scripts/update_review.py
+    ├── plan-review-companion/         # extract/recall/list/status 共享脚本
+    │   └── scripts/
+    │       ├── extract.py
+    │       ├── recall.py
+    │       └── session_extract.py
     ├── plan-review-extract/
-    │   ├── SKILL.md
-    │   └── scripts/extract.py
+    │   └── SKILL.md
     ├── plan-review-recall/
     │   └── SKILL.md
     ├── plan-review-list/

@@ -126,9 +126,13 @@ Your files live in `~/.claude/`:
     ├── plan-review-update/
     │   ├── SKILL.md
     │   └── scripts/update_review.py
+    ├── plan-review-companion/         # shared scripts for extract/recall/list/status
+    │   └── scripts/
+    │       ├── extract.py
+    │       ├── recall.py
+    │       └── session_extract.py
     ├── plan-review-extract/
-    │   ├── SKILL.md
-    │   └── scripts/extract.py
+    │   └── SKILL.md
     ├── plan-review-recall/
     │   └── SKILL.md
     ├── plan-review-list/

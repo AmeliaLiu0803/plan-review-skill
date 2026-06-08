@@ -138,3 +138,16 @@ ls -lt ~/.claude/projects/-home-amelialiu/memory/ 2>/dev/null | head -10
 | 2026-06-07 12:00 | Phase 0 完成，更新实际时间 | 自动（Phase 完成） |
 | 2026-06-07 15:00 | plan diff: Phase 2 时间 7天→10天 | 自动（Plan 变更） |
 ```
+
+## 关联技能：错题本系统
+
+更新 review 后，可继续使用 plan-review-companion 沉淀新发现的教训：
+
+| 命令 | 描述 |
+|------|------|
+| `/plan-review:extract` | 从历史 review 和 memory 中提取教训入库 |
+| `/plan-review:recall "任务描述"` | 为当前任务召回相关教训 |
+| `/plan-review:list` | 列出所有已存储教训 |
+| `/plan-review:status` | 查看知识库统计 |
+
+Session 结束时，Stop hook 自动把 review 中的新教训提取到错题本知识库。

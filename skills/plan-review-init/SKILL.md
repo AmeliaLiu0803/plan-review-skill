@@ -157,3 +157,16 @@ diff ~/.claude/plans/.baselines/<plan>.<last-timestamp>.md ~/.claude/plans/<plan
 
 - plan 创建后（与 Step 2.A 结合）：每次在 `~/.claude/plans/` 中创建新的 plan 文件后，**自动运行** `/plan-review:init <plan-filename>` 生成对应 review 骨架。
 - 用户手动触发 `/plan-review:init`：为指定或所有尚无 review 的 plan 创建回顾。
+
+## 关联技能：错题本系统
+
+完成 review 创建后，可继续使用 plan-review-companion 沉淀和复用教训：
+
+| 命令 | 描述 |
+|------|------|
+| `/plan-review:extract` | 从历史 review 和 memory 中提取教训入库 |
+| `/plan-review:recall "任务描述"` | 为当前任务召回相关教训 |
+| `/plan-review:list` | 列出所有已存储教训 |
+| `/plan-review:status` | 查看知识库统计 |
+
+创建 review 后，自动检索错题本中的相关教训并注入到 review 文档的"历史教训参考"章节。
